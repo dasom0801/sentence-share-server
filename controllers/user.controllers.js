@@ -1,4 +1,7 @@
+import Book from '../models/book.model.js';
+import Sentence from '../models/sentence.model.js';
 import User from '../models/user.model.js';
+import { calculateSkip } from '../utils/utils.js';
 
 export const getUser = (req, res, next) => {
   const { user } = req;
@@ -36,6 +39,62 @@ export const updateUser = async (req, res, next) => {
       err.statusCode = 401;
       throw err;
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 작성자와 책 정보를 찾아서 추가한다.
+const findSentenceDetails = async (sentence) => {
+  const author = await User.findById(sentence.author, '_id name profileUrl');
+  const book = await Book.findById(sentence.book, '_id title author coverUrl');
+  return {
+    ...sentence._doc,
+    author,
+    book,
+  };
+};
+
+export const getUserSentence = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    const skip = calculateSkip(page, limit);
+
+    const sentences = await Sentence.find({ author: userId }, '-firestoreId')
+      .limit(limit)
+      .skip(skip);
+
+    const list = await Promise.all(
+      sentences.map((sentence) => findSentenceDetails(sentence))
+    );
+
+    const total = await Sentence.countDocuments({ author: userId });
+
+    return res.status(200).json({
+      list,
+      page: Number(page),
+      limit: Number(limit),
+      total: Number(total),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserLike = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId, 'likes');
+    const sentences = await Promise.all(
+      user.likes.map((likedSentence) =>
+        Sentence.findById(likedSentence, '-firestoreId')
+      )
+    );
+    const list = await Promise.all(
+      sentences.map((sentence) => findSentenceDetails(sentence))
+    );
+    return res.status(200).json({ list });
   } catch (error) {
     next(error);
   }

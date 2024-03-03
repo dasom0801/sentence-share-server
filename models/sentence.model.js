@@ -10,7 +10,7 @@ const SentenceSchema = new Schema(
       type: Number,
       default: 0,
     },
-    user: {
+    author: {
       type: Schema.Types.ObjectId,
       ref: 'user',
     },
