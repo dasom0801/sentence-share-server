@@ -9,7 +9,10 @@ export const authGuard = async (req, res, next) => {
     try {
       const token = req.headers.authorization.split(' ')[1];
       const decodedToken = await admin.auth().verifyIdToken(token);
-      const user = await User.findOne({ uid: decodedToken.uid });
+      const user = await User.findOne(
+        { uid: decodedToken.uid },
+        '-sentence -likes'
+      );
       req.user = user;
       next();
     } catch (error) {
