@@ -1,7 +1,7 @@
-import connectDB from '../config/db.js';
-import admin from '../config/firebase.config.js';
-import Book from '../models/book.model.js';
-import Sentence from '../models/sentence.model.js';
+import connectDB from '../../config/db.js';
+import admin from '../../config/firebase.config.js';
+import Book from '../../models/book.model.js';
+import Sentence from '../../models/sentence.model.js';
 
 try {
   const firestore = admin.firestore();
@@ -11,12 +11,14 @@ try {
 
   const createSentence = async (sentence) => {
     const firestoreId = sentence.id;
+    const createdAt = sentence.createTime.toDate();
     const data = sentence.data();
     const { bookId, body, likes } = data;
     const createdSentence = await Sentence.create({
       content: body,
       likes,
       firestoreId,
+      createdAt,
     });
 
     const foundBook = await Book.findOne({

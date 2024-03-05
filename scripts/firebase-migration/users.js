@@ -1,7 +1,8 @@
-import connectDB from '../config/db.js';
-import admin from '../config/firebase.config.js';
-import Sentence from '../models/sentence.model.js';
-import User from '../models/user.model.js';
+import connectDB from '../../config/db.js';
+import admin from '../../config/firebase.config.js';
+import Like from '../../models/like.model.js';
+import Sentence from '../../models/sentence.model.js';
+import User from '../../models/user.model.js';
 
 try {
   const auth = admin.auth();
@@ -30,17 +31,25 @@ try {
     return await User.create(userData);
   };
 
-  // 사용자가 좋아요한 문장을 찾아서 objectId를 반환
-  const getUserLikes = async (user) => {
+  // 사용자가 좋아요한 문장을 찾아서 like 생성
+  const setUserLikes = async (user) => {
     const userLikes = await getUserLikesFromFirestore(user.email);
-    const likeIds = await Promise.all(
-      userLikes.map((like) => Sentence.findOne({ firestoreId: like.id }))
+    await Promise.all(
+      userLikes.map(async (like) => {
+        const foundSentence = await Sentence.findOne({ firestoreId: like.id });
+        foundSentence.likes = foundSentence.likes + 1;
+        foundSentence.save();
+        return Like.create({
+          category: 'sentence',
+          user: user._id,
+          target: foundSentence._id,
+        });
+      })
     );
-    return likeIds.map((like) => like._id);
   };
 
-  // 사용자 작성한 문장을 찾아서 objectId를 반환
-  const getUserSentence = async (user) => {
+  // 사용자 작성한 문장에 userId를 반영
+  const setUserSentence = async (user) => {
     const firestoreSentenceIds = await getUserSentenceFromFirestore(user.email);
     const sentences = await Promise.all(
       firestoreSentenceIds.map((id) => Sentence.findOne({ firestoreId: id }))
@@ -49,11 +58,10 @@ try {
     // sentence에 작성한 사용자의 objectId를 반영
     await Promise.all(
       sentences.map((sentence) => {
-        sentence.user = user._id;
+        sentence.author = user._id;
         return sentence.save();
       })
     );
-    return sentences.map((sentence) => sentence._id);
   };
 
   // firestore에서 사용자가 좋아요한 문장들을 가져오기
@@ -94,9 +102,9 @@ try {
     users.forEach(async (authUser) => {
       const user = await createUser(authUser);
       // sentence에 user정보를 넣어주기 위해 createUser 후에 업데이트
-      user.likes = await getUserLikes(user);
-      user.sentence = await getUserSentence(user);
-      await user.save();
+      await setUserLikes(user);
+      await setUserSentence(user);
+      // await user.save();
     });
   });
 } catch (error) {
