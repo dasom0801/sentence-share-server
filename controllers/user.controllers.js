@@ -45,17 +45,7 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-// 작성자와 책 정보를 찾아서 추가한다.
-const findSentenceDetails = async (sentence) => {
-  const author = await User.findById(sentence.author, '_id name profileUrl');
-  const book = await Book.findById(sentence.book, '_id title author coverUrl');
-  return {
-    ...sentence._doc,
-    author,
-    book,
-  };
-};
-
+// 사용자가 작성한 문장 목록
 export const getUserSentence = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -67,7 +57,7 @@ export const getUserSentence = async (req, res, next) => {
       .skip(skip);
 
     const list = await Promise.all(
-      sentences.map((sentence) => findSentenceDetails(sentence))
+      sentences.map((sentence) => findSentenceDetails(sentence, userId))
     );
 
     const total = await Sentence.countDocuments({ author: userId });
@@ -83,6 +73,7 @@ export const getUserSentence = async (req, res, next) => {
   }
 };
 
+// 사용자가 좋아요를 누른 목록
 export const getUserLike = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -95,10 +86,27 @@ export const getUserLike = async (req, res, next) => {
       likes.map((like) => Sentence.findById(like.target, '-firestoreId'))
     );
     const list = await Promise.all(
-      sentences.map((sentence) => findSentenceDetails(sentence))
+      sentences.map((sentence) => findSentenceDetails(sentence, userId))
     );
     return res.status(200).json({ total, page, limit, list });
   } catch (error) {
     next(error);
   }
+};
+
+// Sentence에 추가되어야 하는 정보들을 찾아서 추가해준다.
+const findSentenceDetails = async (sentence, userId) => {
+  const author = await User.findById(sentence.author, '_id name profileUrl');
+  const book = await Book.findById(sentence.book, '_id title author coverUrl');
+  const like = await Like.findOne({
+    user: userId,
+    category: 'sentence',
+    target: sentence._id,
+  });
+  return {
+    ...sentence._doc,
+    author,
+    book,
+    isLiked: !!like,
+  };
 };
