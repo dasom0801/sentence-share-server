@@ -1,5 +1,6 @@
 import Like from '../models/like.model.js';
 import Sentence from '../models/sentence.model.js';
+import { findSentenceDetails } from '../utils/utils.js';
 
 export const toggleSentenceLike = async (req, res, next) => {
   try {
@@ -20,7 +21,8 @@ export const toggleSentenceLike = async (req, res, next) => {
       sentence.likes++;
     }
     await sentence.save();
-    return res.status(200).json(sentence);
+    const sentenceDetail = await findSentenceDetails(sentence, user._id);
+    return res.status(200).json(sentenceDetail);
   } catch (error) {
     next(error);
   }
