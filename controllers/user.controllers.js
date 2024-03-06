@@ -66,6 +66,7 @@ export const getUserSentence = async (req, res, next) => {
       page: Number(page),
       limit: Number(limit),
       total: Number(total),
+      pageTotal: Math.ceil(total / limit),
     });
   } catch (error) {
     next(error);
@@ -87,7 +88,9 @@ export const getUserLike = async (req, res, next) => {
     const list = await Promise.all(
       sentences.map((sentence) => findSentenceDetails(sentence, userId))
     );
-    return res.status(200).json({ total, page, limit, list });
+    return res
+      .status(200)
+      .json({ total, page, limit, list, pageTotal: Math.ceil(total / limit) });
   } catch (error) {
     next(error);
   }
