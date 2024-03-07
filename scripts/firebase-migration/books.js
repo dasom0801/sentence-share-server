@@ -1,6 +1,6 @@
-import connectDB from '../config/db.js';
-import admin from '../config/firebase.config.js';
-import Book from '../models/book.model.js';
+import connectDB from '../../config/db.js';
+import admin from '../../config/firebase.config.js';
+import Book from '../../models/book.model.js';
 
 try {
   const firestore = admin.firestore();
