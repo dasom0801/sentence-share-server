@@ -5,14 +5,8 @@ const BookSchema = new Schema({
   coverUrl: { type: String },
   publisher: { type: String, required: true },
   author: { type: [String], required: true },
-  isbn: { type: String, unique: true },
+  isbn: { type: String, required: true, unique: true },
   firestoreId: { type: String }, // temp value for migration
-  sentence: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'sentence',
-    },
-  ],
 });
 
 const Book = model('book', BookSchema);

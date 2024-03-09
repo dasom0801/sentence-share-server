@@ -13,10 +13,12 @@ const SentenceSchema = new Schema(
     author: {
       type: Schema.Types.ObjectId,
       ref: 'user',
+      required: true,
     },
     book: {
       type: Schema.Types.ObjectId,
       ref: 'book',
+      required: true,
     },
     firestoreId: { type: String }, // temp value for migration
   },
