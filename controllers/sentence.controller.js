@@ -1,6 +1,30 @@
 import Like from '../models/like.model.js';
 import Sentence from '../models/sentence.model.js';
-import { findSentenceDetails } from '../utils/utils.js';
+import { calculateSkip, findSentenceDetails, getUserFromToken } from '../utils/utils.js';
+
+
+// 문장 전체 목록 가져오기
+export const getSentences = async (req, res, next) => {
+  try {
+    const { page  = 1, limit = 20 } = req.query;
+    const skip = calculateSkip(page, limit);
+    const sort = {createdAt: -1 };
+    const sentences = await Sentence.find().sort(sort).limit(limit).skip(skip);
+    const user = await getUserFromToken(req);
+    const list = await Promise.all(sentences.map(sentence => findSentenceDetails(sentence, user?.userId)));
+    const total = await Sentence.countDocuments();
+    
+    return res.status(200).json({
+      list,
+      page: Number(page),
+      limit: Number(limit),
+      total: Number(total),
+      pageTotal: Math.ceil(total/limit)
+    });
+  } catch (error) {
+    next(error)
+  }
+}
 
 export const toggleSentenceLike = async (req, res, next) => {
   try {
