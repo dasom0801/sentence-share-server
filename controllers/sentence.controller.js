@@ -60,7 +60,26 @@ export const createSentence = async (req, res, next) => {
 
     return res.status(200).json({
       message: '문장을 추가했습니다.',
-      sentence: newSentence,
+      result: newSentence,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSentence = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { content, book } = req.body;
+    const updatedSentence = await Sentence.findByIdAndUpdate(
+      id,
+      { content, book: book._id },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: '문장을 수정했습니다.',
+      result: updatedSentence,
     });
   } catch (error) {
     next(error);

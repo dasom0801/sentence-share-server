@@ -7,7 +7,6 @@ export const validationErrorHandler = (req, res, next) => {
     const error = new Error('잘못된 요청입니다.');
     error.status = 400;
     error.errors = errors.array();
-    console.log(error);
     throw error;
   }
   next();
