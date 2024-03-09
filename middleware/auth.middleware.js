@@ -1,5 +1,6 @@
 import admin from '../config/firebase.config.js';
 import User from '../models/user.model.js';
+import { getUserFromToken } from '../utils/utils.js';
 
 export const authGuard = async (req, res, next) => {
   if (
