@@ -56,11 +56,12 @@ export const createSentence = async (req, res, next) => {
   try {
     const { content, book } = req.body;
     const { user } = req;
-    let bookId = book._id;
+    const { title, coverUrl, publisher, author, isbn } = book;
+    const foundBook = await Book.findOne({ isbn });
+    let bookId = foundBook?._id;
 
     // 저장된 책이 아니면 새로 만든다.
-    if (!bookId) {
-      const { title, coverUrl, publisher, author, isbn } = book;
+    if (!foundBook) {
       const newBook = await Book.create({
         title,
         coverUrl,
@@ -70,7 +71,6 @@ export const createSentence = async (req, res, next) => {
       });
       bookId = newBook._id;
     }
-
     const newSentence = await Sentence.create({
       content,
       book: bookId,
