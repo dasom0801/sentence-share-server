@@ -11,6 +11,7 @@ export const calculateSkip = (page, limit) => {
 export const findSentenceDetails = async (sentence, userId) => {
   const author = await User.findById(sentence.author, '_id name profileUrl');
   const book = await Book.findById(sentence.book, '_id title author coverUrl');
+  const { firestoreId, ...sentenceResult } = sentence._doc;
   let isLiked = false;
 
   // 로그인하지 않은 경우
@@ -23,7 +24,7 @@ export const findSentenceDetails = async (sentence, userId) => {
   }
 
   return {
-    ...sentence._doc,
+    ...sentenceResult,
     author,
     book,
     isLiked,

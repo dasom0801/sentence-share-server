@@ -30,6 +30,22 @@ export const getSentences = async (req, res, next) => {
   }
 };
 
+export const getSentence = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const sentence = await Sentence.findById(id);
+    if (!sentence) {
+      const error = new Error('문장을 찾을 수 없습니다.');
+      error.status = 404;
+      throw error;
+    }
+    const result = await findSentenceDetails(sentence);
+    return res.status(200).json({ ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // kakao api로 책 검색
 export const searchBook = async (req, res, next) => {
   try {
