@@ -15,22 +15,22 @@ export const findSentenceDetails = async (sentence, userId) => {
 
   // 로그인하지 않은 경우
   if (userId) {
-    isLiked = !!await Like.findOne({
+    isLiked = !!(await Like.findOne({
       user: userId,
       category: 'sentence',
       target: sentence._id,
-    });
+    }));
   }
-  
+
   return {
     ...sentence._doc,
     author,
     book,
-    isLiked
+    isLiked,
   };
 };
 
-
+// token으로 user 정보를 찾아서 반환한다.
 export const getUserFromToken = async (req) => {
   if (
     req.headers.authorization &&
@@ -41,10 +41,21 @@ export const getUserFromToken = async (req) => {
       const decodedToken = await admin.auth().verifyIdToken(token);
       const user = await User.findOne({ uid: decodedToken.uid });
       return user;
-    } catch(error) {
-      next(error)
+    } catch (error) {
+      next(error);
     }
   } else {
     return null;
   }
-}
+};
+
+// params를 받아서 pagination 타입으로 반환한다.
+export const getPaginationResult = ({ page, limit, list, total }) => {
+  return {
+    list,
+    page: Number(page),
+    limit: Number(limit),
+    total: Number(total),
+    pageTotal: Math.ceil(total / limit),
+  };
+};

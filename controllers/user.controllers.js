@@ -5,7 +5,6 @@ import { calculateSkip, findSentenceDetails } from '../utils/utils.js';
 
 export const getUser = (req, res, next) => {
   const { user } = req;
-  console.log('user', user);
   try {
     if (user) {
       const { uid, ...userInfo } = user._doc;
