@@ -1,10 +1,11 @@
-import { validationResult } from 'express-validator';
+import axios from 'axios';
 import Like from '../models/like.model.js';
 import Sentence from '../models/sentence.model.js';
 import {
   calculateSkip,
   findSentenceDetails,
   getUserFromToken,
+  getPaginationResult,
 } from '../utils/utils.js';
 import Book from '../models/book.model.js';
 
@@ -22,11 +23,45 @@ export const getSentences = async (req, res, next) => {
     const total = await Sentence.countDocuments();
 
     return res.status(200).json({
-      list,
-      page: Number(page),
-      limit: Number(limit),
-      total: Number(total),
-      pageTotal: Math.ceil(total / limit),
+      ...getPaginationResult({ page, limit, total, list }),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSentence = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const sentence = await Sentence.findById(id);
+    if (!sentence) {
+      const error = new Error('문장을 찾을 수 없습니다.');
+      error.status = 404;
+      throw error;
+    }
+    const result = await findSentenceDetails(sentence);
+    return res.status(200).json({ ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// kakao api로 책 검색
+export const searchBook = async (req, res, next) => {
+  try {
+    const { query, page = 1, limit = 20, target = 'title' } = req.query;
+    const { documents: list, meta } = (
+      await axios.get(
+        `https://dapi.kakao.com/v3/search/book?query=${query}&page=${page}&size=${limit}&target=${target}`,
+        {
+          headers: {
+            Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
+          },
+        }
+      )
+    ).data;
+    return res.status(200).json({
+      ...getPaginationResult({ page, limit, total: meta.pageable_count, list }),
     });
   } catch (error) {
     next(error);
@@ -37,11 +72,12 @@ export const createSentence = async (req, res, next) => {
   try {
     const { content, book } = req.body;
     const { user } = req;
-    let bookId = book._id;
+    const { title, coverUrl, publisher, author, isbn } = book;
+    const foundBook = await Book.findOne({ isbn });
+    let bookId = foundBook?._id;
 
     // 저장된 책이 아니면 새로 만든다.
-    if (!bookId) {
-      const { title, coverUrl, publisher, author, isbn } = book;
+    if (!foundBook) {
       const newBook = await Book.create({
         title,
         coverUrl,
@@ -51,7 +87,6 @@ export const createSentence = async (req, res, next) => {
       });
       bookId = newBook._id;
     }
-
     const newSentence = await Sentence.create({
       content,
       book: bookId,
