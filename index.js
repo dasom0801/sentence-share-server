@@ -10,6 +10,7 @@ import {
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import sentenceRoutes from './routes/sentence.route.js';
+import bookRoutes from './routes/book.route.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/sentence', sentenceRoutes);
+app.use('/api/book', bookRoutes);
 
 app.use(invalidPathHandler);
 app.use(errorResponseHandler);

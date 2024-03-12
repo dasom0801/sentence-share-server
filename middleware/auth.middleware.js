@@ -3,22 +3,26 @@ import User from '../models/user.model.js';
 import { getUserFromToken } from '../utils/utils.js';
 
 export const authGuard = async (req, res, next) => {
+  const trhowError = () => {
+    const err = new Error('Not authorized');
+    err.statusCode = 401;
+    next(err);
+  };
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
       const user = await getUserFromToken(req);
+      if (!user) {
+        trhowError();
+      }
       req.user = user;
       next();
     } catch (error) {
-      const err = new Error('Not authorized');
-      err.statusCode = 401;
-      next(err);
+      trhowError();
     }
   } else {
-    const error = new Error('Not authorized');
-    error.statusCode = 401;
-    next(error);
+    trhowError();
   }
 };

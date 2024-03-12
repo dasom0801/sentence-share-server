@@ -10,7 +10,7 @@ export const calculateSkip = (page, limit) => {
 // Sentence에 추가되어야 하는 정보들을 찾아서 추가해준다.
 export const findSentenceDetails = async (sentence, userId) => {
   const author = await User.findById(sentence.author, '_id name profileUrl');
-  const book = await Book.findById(sentence.book, '_id title author coverUrl');
+  const book = await Book.findById(sentence.book, '-firestoreId');
   const { firestoreId, ...sentenceResult } = sentence._doc;
   let isLiked = false;
 
@@ -43,7 +43,7 @@ export const getUserFromToken = async (req) => {
       const user = await User.findOne({ uid: decodedToken.uid });
       return user;
     } catch (error) {
-      next(error);
+      return null;
     }
   } else {
     return null;
