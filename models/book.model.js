@@ -6,6 +6,7 @@ const BookSchema = new Schema({
   publisher: { type: String, required: true },
   author: { type: [String], required: true },
   isbn: { type: String, required: true, unique: true },
+  publishedAt: { type: Date },
   firestoreId: { type: String }, // temp value for migration
 });
 

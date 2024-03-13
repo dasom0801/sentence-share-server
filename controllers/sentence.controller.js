@@ -50,6 +50,17 @@ export const getSentence = async (req, res, next) => {
 export const searchBook = async (req, res, next) => {
   try {
     const { query, page = 1, limit = 20, target = 'title' } = req.query;
+    const convertToBookType = (book) => {
+      const { authors, isbn, publisher, title, thumbnail, datetime } = book;
+      return {
+        title,
+        coverUrl: thumbnail,
+        publisher,
+        author: authors,
+        isbn,
+        publishedAt: datetime,
+      };
+    };
     const { documents: list, meta } = (
       await axios.get(
         `https://dapi.kakao.com/v3/search/book?query=${query}&page=${page}&size=${limit}&target=${target}`,
@@ -61,7 +72,12 @@ export const searchBook = async (req, res, next) => {
       )
     ).data;
     return res.status(200).json({
-      ...getPaginationResult({ page, limit, total: meta.pageable_count, list }),
+      ...getPaginationResult({
+        page,
+        limit,
+        total: meta.pageable_count,
+        list: list.map(convertToBookType),
+      }),
     });
   } catch (error) {
     next(error);
@@ -72,7 +88,7 @@ export const createSentence = async (req, res, next) => {
   try {
     const { content, book } = req.body;
     const { user } = req;
-    const { title, coverUrl, publisher, author, isbn } = book;
+    const { title, coverUrl, publisher, author, isbn, publishedAt } = book;
     const foundBook = await Book.findOne({ isbn });
     let bookId = foundBook?._id;
 
@@ -84,6 +100,7 @@ export const createSentence = async (req, res, next) => {
         publisher,
         author,
         isbn,
+        publishedAt,
       });
       bookId = newBook._id;
     }
