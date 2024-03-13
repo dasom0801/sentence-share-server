@@ -7,6 +7,21 @@ import {
   findSentenceDetails,
 } from '../utils/utils.js';
 
+export const getBook = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const book = await Book.findById(id, '-firestoreId');
+    if (!book) {
+      const error = new Error('등록된 책이 없습니다.');
+      error.status = 404;
+      throw error;
+    }
+    return res.status(200).json(book);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getBookSentences = async (req, res, next) => {
   try {
     const { id } = req.params;
