@@ -4,6 +4,7 @@ import {
   getUserFromToken,
   getPaginationResult,
   calculateSkip,
+  findSentenceDetails,
 } from '../utils/utils.js';
 
 export const getBookSentences = async (req, res, next) => {
@@ -21,10 +22,10 @@ export const getBookSentences = async (req, res, next) => {
     }
 
     const filter = { book: book._id };
+    const user = await getUserFromToken(req);
 
     // 로그인한 사용자가 작성한 문장만 가져오는 경우
     if (mine) {
-      const user = await getUserFromToken(req);
       if (!user) {
         const error = new Error('로그인 후 이용해주세요.');
         error.status = 401;
@@ -32,11 +33,22 @@ export const getBookSentences = async (req, res, next) => {
       }
       filter.author = user._id;
     }
-    const list = await Sentence.find(filter).sort(sort).limit(limit).skip(skip);
+    const sentences = await Sentence.find(filter)
+      .sort(sort)
+      .limit(limit)
+      .skip(skip);
+    const list = await Promise.all(
+      sentences.map((sentence) => findSentenceDetails(sentence, user?.userId))
+    );
     const total = await Sentence.countDocuments(filter);
 
     return res.status(200).json({
-      ...getPaginationResult({ page, limit, list, total }),
+      ...getPaginationResult({
+        page,
+        limit,
+        list,
+        total,
+      }),
     });
   } catch (error) {
     next(error);
