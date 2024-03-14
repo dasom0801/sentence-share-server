@@ -18,8 +18,9 @@ export const getSentences = async (req, res, next) => {
     const sentences = await Sentence.find().sort(sort).limit(limit).skip(skip);
     const user = await getUserFromToken(req);
     const list = await Promise.all(
-      sentences.map((sentence) => findSentenceDetails(sentence, user?.userId))
+      sentences.map((sentence) => findSentenceDetails(sentence, user?._id))
     );
+
     const total = await Sentence.countDocuments();
 
     return res.status(200).json({
