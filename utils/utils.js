@@ -14,7 +14,7 @@ export const findSentenceDetails = async (sentence, userId) => {
   const { firestoreId, ...sentenceResult } = sentence._doc;
   let isLiked = false;
 
-  // 로그인하지 않은 경우
+  // 로그인한 경우
   if (userId) {
     isLiked = !!(await Like.findOne({
       user: userId,

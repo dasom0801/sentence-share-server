@@ -1,3 +1,4 @@
+import admin from '../config/firebase.config.js';
 import Like from '../models/like.model.js';
 import Sentence from '../models/sentence.model.js';
 import User from '../models/user.model.js';
@@ -39,6 +40,27 @@ export const updateUser = async (req, res, next) => {
       err.statusCode = 401;
       throw err;
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 회원 탈퇴
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { user } = req;
+    // 좋아요 삭제
+    await Like.deleteMany({ user: user._id });
+    // 작성한 문장 삭제
+    await Sentence.deleteMany({ author: user._id });
+    // 사용자 정보 삭제
+    await User.findByIdAndDelete(user._id);
+    // 토큰 취소
+    await admin.auth().revokeRefreshTokens(user.uid);
+    // firebase auth에서 삭제
+    await admin.auth().deleteUser(user.uid);
+
+    return res.status(200).json('회원 탈퇴하였습니다.');
   } catch (error) {
     next(error);
   }
