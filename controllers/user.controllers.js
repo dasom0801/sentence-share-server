@@ -70,12 +70,19 @@ export const deleteUser = async (req, res, next) => {
 export const getUserSentence = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      sortBy = 'createdAt',
+      sortOrder = -1,
+    } = req.query;
+    const sort = { [sortBy]: Number(sortOrder) };
     const skip = calculateSkip(page, limit);
 
     const sentences = await Sentence.find({ author: userId }, '-firestoreId')
       .limit(limit)
-      .skip(skip);
+      .skip(skip)
+      .sort(sort);
 
     const list = await Promise.all(
       sentences.map((sentence) => findSentenceDetails(sentence, userId))
@@ -99,10 +106,17 @@ export const getUserSentence = async (req, res, next) => {
 export const getUserLike = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 20, category = 'sentence' } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      category = 'sentence',
+      sortBy = 'createdAt',
+      sortOrder = -1,
+    } = req.query;
     const skip = calculateSkip(page, limit);
+    const sort = { [sortBy]: Number(sortOrder) };
     const filter = { category, user: userId };
-    const likes = await Like.find(filter).limit(limit).skip(skip);
+    const likes = await Like.find(filter).limit(limit).skip(skip).sort(sort);
     const total = await Like.countDocuments(filter);
     const sentences = await Promise.all(
       likes.map((like) => Sentence.findById(like.target, '-firestoreId'))
