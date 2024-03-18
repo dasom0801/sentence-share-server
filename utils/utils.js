@@ -1,4 +1,5 @@
-import admin from '../config/firebase.config.js';
+import jwt from 'jsonwebtoken';
+
 import Book from '../models/book.model.js';
 import Like from '../models/like.model.js';
 import User from '../models/user.model.js';
@@ -39,8 +40,11 @@ export const getUserFromToken = async (req) => {
   ) {
     try {
       const token = req.headers.authorization.split(' ')[1];
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      const user = await User.findOne({ uid: decodedToken.uid });
+      const { userId } = jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_PRIVATE_KEY
+      );
+      const user = await User.findById(userId);
       return user;
     } catch (error) {
       return null;
@@ -59,4 +63,10 @@ export const getPaginationResult = ({ page, limit, list, total }) => {
     total: Number(total),
     pageTotal: Math.ceil(total / limit),
   };
+};
+
+export const generateUserToken = (user) => {
+  return jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_PRIVATE_KEY, {
+    expiresIn: '30m',
+  });
 };
