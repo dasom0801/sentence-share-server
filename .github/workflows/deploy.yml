@@ -19,8 +19,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: sentence-share-server
-          environment_name: Sentence-share-server-env-1
+          application_name: sentence-share
+          environment_name: Sentence-share
           version_label: ${{github.SHA}}
           region: ap-northeast-2
           deployment_package: deploy.zip
