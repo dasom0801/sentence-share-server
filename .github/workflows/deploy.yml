@@ -16,23 +16,29 @@ jobs:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: echo $DATA | base64 -di > config/service-account-file.json
 
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
+      - name: Deploy to Firebase
+        uses: jsryudev/deploy-firebase-functions@v0.0.2
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT: sentence-share
 
-      - name: Get current time
-        uses: 1466587594/get-current-time@v2
-        id: current-time
-        with:
-          format: YYYY-MM-DDTHH-mm-ss
-          utcOffset: '+09:00'
+      # - name: Generate deployment package
+      #   run: zip -r deploy.zip . -x '*.git*'
 
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v21
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: sentence-share
-          environment_name: sentence-share
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-          region: ap-northeast-2
-          deployment_package: deploy.zip
+      # - name: Get current time
+      #   uses: 1466587594/get-current-time@v2
+      #   id: current-time
+      #   with:
+      #     format: YYYY-MM-DDTHH-mm-ss
+      #     utcOffset: '+09:00'
+
+      # - name: Deploy to EB
+      #   uses: einaregilsson/beanstalk-deploy@v21
+      #   with:
+      #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     application_name: sentence-share
+      #     environment_name: sentence-share
+      #     version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+      #     region: ap-northeast-2
+      #     deployment_package: deploy.zip

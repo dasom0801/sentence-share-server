@@ -1,3 +1,10 @@
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+
+import functions from 'firebase-functions';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -20,17 +27,17 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/sentence', sentenceRoutes);
-app.use('/api/book', bookRoutes);
-app.get('/health', (req, res, next) => {
-  return res.status(200).json('ok');
-});
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
+app.use('/sentence', sentenceRoutes);
+app.use('/book', bookRoutes);
 
 app.use(invalidPathHandler);
 app.use(errorResponseHandler);
 
-app.listen('8080', () => {
-  console.log('Server is listening');
-});
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
+// /api prefix를 가지는 요청을 express 라우터로 전달
+const api = functions.region('asia-northeast2').https.onRequest(app);
+
+export { api };
