@@ -1,15 +1,10 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
+import serviceAccount from '../config/service-account-file.json' assert { type: 'json' };
 dotenv.config();
 
 admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: 'sentence-share',
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-    token_uri: 'https://oauth2.googleapis.com/token',
-  }),
+  credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://sentence-share.firebaseio.com',
 });
 
