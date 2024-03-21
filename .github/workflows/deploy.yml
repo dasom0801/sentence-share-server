@@ -4,49 +4,40 @@ on:
     branches:
       - main
 jobs:
-  job1:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
 
       - name: Load Firebase Service Account file
         env:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: echo $DATA | base64 -di > functions/config/service-account-file.json
 
-  job2:
-    runs-on: ubuntu-latest
-    needs: job1
-    steps:
       - name: Deploy to Firebase
-        uses: jsryudev/deploy-firebase-functions@v0.0.2
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          FIREBASE_PROJECT: sentence-share
+      # - name: Generate deployment package
+      #   run: zip -r deploy.zip . -x '*.git*'
 
-    # - name: Generate deployment package
-    #   run: zip -r deploy.zip . -x '*.git*'
+      # - name: Get current time
+      #   uses: 1466587594/get-current-time@v2
+      #   id: current-time
+      #   with:
+      #     format: YYYY-MM-DDTHH-mm-ss
+      #     utcOffset: '+09:00'
 
-    # - name: Get current time
-    #   uses: 1466587594/get-current-time@v2
-    #   id: current-time
-    #   with:
-    #     format: YYYY-MM-DDTHH-mm-ss
-    #     utcOffset: '+09:00'
-
-    # - name: Deploy to EB
-    #   uses: einaregilsson/beanstalk-deploy@v21
-    #   with:
-    #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     application_name: sentence-share
-    #     environment_name: sentence-share
-    #     version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-    #     region: ap-northeast-2
-    #     deployment_package: deploy.zip
+      # - name: Deploy to EB
+      #   uses: einaregilsson/beanstalk-deploy@v21
+      #   with:
+      #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     application_name: sentence-share
+      #     environment_name: sentence-share
+      #     version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+      #     region: ap-northeast-2
+      #     deployment_package: deploy.zip
