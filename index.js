@@ -24,6 +24,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/sentence', sentenceRoutes);
 app.use('/api/book', bookRoutes);
+app.get('/health', (req, res, next) => {
+  return res.status(200).json('ok');
+});
 
 app.use(invalidPathHandler);
 app.use(errorResponseHandler);
