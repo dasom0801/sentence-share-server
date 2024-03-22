@@ -10,9 +10,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
-      - name: Install Dependencies
-        run: cd functions && npm install && cd ..
-
       - name: Load Firebase Service Account file
         env:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
