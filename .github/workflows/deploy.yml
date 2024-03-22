@@ -13,7 +13,7 @@ jobs:
       - name: Load Firebase Service Account file
         env:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: echo $DATA | base64 -di > functions/config/service-account-file.json
+        run: echo $DATA | base64 -di > config/service-account-file.json
 
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
