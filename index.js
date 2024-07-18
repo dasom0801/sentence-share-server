@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import compression from 'compression';
 
 import connectDB from './config/db.js';
 import {
@@ -18,6 +19,7 @@ const app = express();
 // DB연결
 connectDB();
 app.use(cors());
+app.use(compression());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
