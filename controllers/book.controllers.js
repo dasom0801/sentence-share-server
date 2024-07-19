@@ -7,14 +7,14 @@ import {
 	findSentenceDetails,
 } from '../utils/utils.js';
 
+import { bookErrors, userErrors } from '../utils/errors.js';
+
 export const getBook = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const book = await Book.findById(id, '-firestoreId');
 		if (!book) {
-			const error = new Error('등록된 책이 없습니다.');
-			error.status = 404;
-			throw error;
+			return bookErrors.notFound(next);
 		}
 		return res.status(200).json(book);
 	} catch (error) {
@@ -31,9 +31,7 @@ export const getBookSentences = async (req, res, next) => {
 		const book = await Book.findById(id);
 
 		if (!book) {
-			const error = new Error('등록된 책이 없습니다.');
-			error.status = 404;
-			throw error;
+			return bookErrors.notFound(next);
 		}
 
 		const filter = { book: book._id };
@@ -42,9 +40,7 @@ export const getBookSentences = async (req, res, next) => {
 		// 로그인한 사용자가 작성한 문장만 가져오는 경우
 		if (mine) {
 			if (!user) {
-				const error = new Error('로그인 후 이용해주세요.');
-				error.status = 401;
-				throw error;
+				return userErrors.loginRequired(next);
 			}
 			filter.author = user._id;
 		}

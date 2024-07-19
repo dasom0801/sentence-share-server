@@ -1,11 +1,7 @@
 import { getUserFromToken } from '../utils/utils.js';
+import { userErrors } from '../utils/errors.js';
 
 export const authGuard = async (req, res, next) => {
-	const throwError = () => {
-		const err = new Error('Not authorized');
-		err.statusCode = 401;
-		next(err);
-	};
 	if (
 		req.headers.authorization &&
 		req.headers.authorization.startsWith('Bearer')
@@ -13,14 +9,14 @@ export const authGuard = async (req, res, next) => {
 		try {
 			const user = await getUserFromToken(req);
 			if (!user) {
-				throwError();
+				return userErrors.unauthorized(next);
 			}
 			req.user = user;
 			next();
 		} catch (error) {
-			throwError();
+			return userErrors.unauthorized(next);
 		}
 	} else {
-		throwError();
+		return userErrors.unauthorized(next);
 	}
 };
