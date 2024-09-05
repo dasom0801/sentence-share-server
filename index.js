@@ -21,7 +21,7 @@ connectDB();
 
 const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://sentence-share.site',
+  origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.sentence-share.site',
   allowedHeaders: ['Content-Type', 'Authorization',],
   credentials: true,
 };
