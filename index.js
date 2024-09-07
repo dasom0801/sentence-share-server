@@ -19,9 +19,10 @@ const app = express();
 // DB연결
 connectDB();
 
+const allowList = ['http://localhost:3000', 'https://www.sentence-share.site', 'https://sentence-share.vercel.app/']
 const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.sentence-share.site',
+  origin: allowList,
   allowedHeaders: ['Content-Type', 'Authorization',],
   credentials: true,
 };
