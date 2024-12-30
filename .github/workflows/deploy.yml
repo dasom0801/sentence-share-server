@@ -29,7 +29,7 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > $GITHUB_WORKSPACE/functions/config/service-account-key.json
+          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > functions/config/service-account-key.json
 
       # service-account-key 파일 생성 확인 (디버깅 단계)
       - name: Verify Service Account Key
@@ -39,7 +39,7 @@ jobs:
       # Firebase Functions 배포
       - name: Deploy to Firebase Functions
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: $GITHUB_WORKSPACE/functions/config/service-account-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/config/service-account-key.json
         run: |
           cd functions
           npm install
