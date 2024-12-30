@@ -10,33 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 소스 코드 체크아웃
       - name: Checkout source code
         uses: actions/checkout@v2
 
+      # Node.js 설정
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # Firebase CLI 설치
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      # service-account-key 파일 생성
       - name: Load Firebase Service Account
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > functions/config/service-account-key.json
+          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > $GITHUB_WORKSPACE/functions/config/service-account-key.json
 
+      # service-account-key 파일 생성 확인 (디버깅 단계)
+      - name: Verify Service Account Key
+        run: |
+          ls -l $GITHUB_WORKSPACE/functions/config/
+
+      # Firebase Functions 배포
       - name: Deploy to Firebase Functions
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/config/service-account-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: $GITHUB_WORKSPACE/functions/config/service-account-key.json
         run: |
           cd functions
           npm install
           firebase deploy --only functions
-
-      - name: Upload Service Account Key as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: service-account-key
-          path: functions/config/service-account-key.json
