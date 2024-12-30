@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
-import serviceAccount from './service-account-file.json' assert { type: 'json' };
+import serviceAccount from './service-account-key.json' assert { type: 'json' };
 
 dotenv.config();
 
