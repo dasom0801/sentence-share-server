@@ -1,6 +1,9 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
-import serviceAccount from './service-account-file.json' assert { type: 'json' };
+
+import path from 'path';
+import serviceAccount from path.resolve(__dirname, './config/service-account-key.json') assert { type: 'json' };
+
 dotenv.config();
 
 admin.initializeApp({
