@@ -1,37 +1,32 @@
-name: Deploy main
+name: Deploy Firebase Functions
 on:
   push:
     branches:
       - main
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Load Firebase Service Account file
         env:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: echo $DATA | base64 -di > config/service-account-file.json
+        run: echo $DATA | base64 -di > functions/config/service-account-file.json
 
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
+      - name: Authenticate with Firebase
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: firebase login:ci --no-localhost || true
 
-      - name: Get current time
-        uses: 1466587594/get-current-time@v2
-        id: current-time
-        with:
-          format: YYYY-MM-DDTHH-mm-ss
-          utcOffset: '+09:00'
-
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v21
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: sentence-share
-          environment_name: sentence-share
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-          region: ap-northeast-2
-          deployment_package: deploy.zip
+      - name: Deploy to Firebase Functions
+        run: |
+          cd functions
+          npm install
+          npm run deploy
