@@ -25,11 +25,11 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > service-account-key.json
+          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > functions/config/service-account-key.json
 
       - name: Deploy to Firebase Functions
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/config/service-account-key.json
         run: |
           cd functions
           npm install
@@ -39,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: service-account-key
-          path: service-account-key.json
+          path: functions/config/service-account-key.json
