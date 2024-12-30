@@ -1,13 +1,13 @@
 import express from 'express';
 import { authGuard } from '../middleware/auth.middleware.js';
 import {
-	deleteSentence,
-	getSentences,
-	getSentence,
-	createSentence,
-	toggleSentenceLike,
-	updateSentence,
-	searchBook,
+  deleteSentence,
+  getSentences,
+  getSentence,
+  createSentence,
+  toggleSentenceLike,
+  updateSentence,
+  searchBook,
 } from '../controllers/sentence.controller.js';
 import { validateSentence } from '../utils/validators.js';
 
