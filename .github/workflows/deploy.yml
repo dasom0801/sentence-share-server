@@ -1,4 +1,5 @@
 name: Deploy Firebase Functions
+
 on:
   push:
     branches:
@@ -12,24 +13,30 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Load Firebase Service Account file
+      - name: Load Firebase Service Account
         env:
-          DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: echo $DATA | base64 -di > functions/config/service-account-file.json
-
-      - name: Verify GOOGLE_APPLICATION_CREDENTIALS path
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS is set to: $GOOGLE_APPLICATION_CREDENTIALS"
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/config/service-account-file.json
+          echo $FIREBASE_SERVICE_ACCOUNT | base64 -d > service-account-key.json
 
       - name: Deploy to Firebase Functions
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/config/service-account-file.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account-key.json
         run: |
           cd functions
           npm install
-          npm run deploy
+          firebase deploy --only functions
+
+      - name: Upload Service Account Key as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: service-account-key
+          path: service-account-key.json
