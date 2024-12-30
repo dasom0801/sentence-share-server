@@ -12,6 +12,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
@@ -20,12 +25,9 @@ jobs:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: echo $DATA | base64 -di > functions/config/service-account-file.json
 
-      - name: Set Firebase Service Account
+      - name: Deploy to Firebase Functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS: functions/config/service-account-file.json
-        run: echo "Firebase Service Account loaded"
-
-      - name: Deploy to Firebase Functions
         run: |
           cd functions
           npm install
