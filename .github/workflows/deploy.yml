@@ -20,10 +20,10 @@ jobs:
           DATA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: echo $DATA | base64 -di > functions/config/service-account-file.json
 
-      - name: Authenticate with Firebase
+      - name: Set Firebase Service Account
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: firebase login:ci --no-localhost || true
+          GOOGLE_APPLICATION_CREDENTIALS: functions/config/service-account-file.json
+        run: echo "Firebase Service Account loaded"
 
       - name: Deploy to Firebase Functions
         run: |
