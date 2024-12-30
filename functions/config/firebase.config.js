@@ -1,8 +1,15 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 
+import fs from 'fs';
 import path from 'path';
-import serviceAccount from path.resolve(__dirname, './config/service-account-key.json') assert { type: 'json' };
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const serviceAccountPath = path.resolve(
+  __dirname,
+  './service-account-file.json',
+);
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
 
 dotenv.config();
 
