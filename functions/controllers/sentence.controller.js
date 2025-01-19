@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Like from '../models/like.model.js';
 import Sentence from '../models/sentence.model.js';
 import {
@@ -66,16 +65,23 @@ export const searchBook = async (req, res, next) => {
         publishedAt: datetime,
       };
     };
-    const { documents: list, meta } = (
-      await axios.get(
-        `https://dapi.kakao.com/v3/search/book?query=${query}&page=${page}&size=${limit}&target=${target}`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
-          },
+
+    const response = await fetch(
+      `https://dapi.kakao.com/v3/search/book?query=${query}&page=${page}&size=${limit}&target=${target}`,
+      {
+        headers: {
+          Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
         },
-      )
-    ).data;
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    const { documents: list, meta } = data;
+
     return res.status(200).json({
       ...getPaginationResult({
         page,
