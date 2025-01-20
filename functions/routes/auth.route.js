@@ -1,5 +1,5 @@
 import express from 'express';
-import { authWithGoogle } from '../controllers/auth.controllers.js';
+import { authWithGoogle } from '../controllers/auth.controller.js';
 
 const router = express.Router();
 
